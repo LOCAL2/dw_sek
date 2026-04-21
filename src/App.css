@@ -49,6 +49,76 @@ body {
   text-transform: uppercase;
 }
 
+/* ── Header Profiles ── */
+.header-profiles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(13, 21, 38, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 12px;
+  padding: 10px 16px;
+  backdrop-filter: blur(6px);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+
+.profile-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.profile-role {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.profile-role.admin {
+  color: #f87171;
+}
+
+.profile-role.player {
+  color: #60a5fa;
+}
+
+.profile-divider {
+  color: #2d4f72;
+  font-size: 1rem;
+  user-select: none;
+}
+
 /* ── Grid ── */
 .gallery-grid {
   display: grid;

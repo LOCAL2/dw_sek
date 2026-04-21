@@ -152,7 +152,7 @@ function App() {
     <div className="gallery-root">
       <header className="gallery-header">
         <h1>Dw Sek</h1>
-        <p>{images.length} photos</p>
+        <p>{images.length} หลักฐาน</p>
       </header>
 
       <main className="gallery-grid">
