@@ -20,6 +20,10 @@ function cleanOcrText(text: string): string {
 
 const cache: Record<string, string> = {}
 
+export function clearSummaryCache() {
+  Object.keys(cache).forEach(k => delete cache[k])
+}
+
 export function useImageSummary(filename: string | null) {
   const [summary, setSummary] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -41,7 +45,7 @@ export function useImageSummary(filename: string | null) {
       messages: [
         {
           role: 'system',
-          content: 'สรุปเนื้อหาการสนทนาในภาพนี้แบบกระชับ 1-2 ประโยค ตอบเป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอื่นโดยเด็ดขาด ไม่ต้องมีคำนำ บริบท: การสนทนาเกี่ยวกับการเสกของในเกม (admin เสกไอเทมและเงินในเกมให้ผู้เล่น) และการโอนเงินจริง ห้ามเรียกว่าการซื้อขายสินค้าในเกมหรือการเล่นเกมทั่วไป หน่วย k = พัน เช่น 200k = 200,000 บาท, แสน = 100,000 บาท'
+          content: 'สรุปเนื้อหาการสนทนาในภาพนี้แบบกระชับ 1-2 ประโยค ตอบเป็นภาษาไทยเท่านั้น ห้ามใช้ภาษาอื่นโดยเด็ดขาด ไม่ต้องมีคำนำ บริบท: การสนทนาเกี่ยวกับการเสกของในเกม (admin เสกไอเทมและเงินในเกมให้ผู้เล่น โดยผู้เล่นต้องโอนเงินจริงเพื่อแลกกับของในเกม ซึ่งเป็นการกระทำที่ไม่ถูกต้อง เอาเปรียบ และผิดกฎของเกม) หน่วย k = พัน เช่น 200k = 200,000 บาท, แสน = 100,000 บาท ถ้าเห็นว่า admin ไม่เสกตามที่ขอหรือเสกไม่ครบให้ระบุด้วย'
         },
         { role: 'user', content: text }
       ],

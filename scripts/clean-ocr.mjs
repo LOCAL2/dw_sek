@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs'
 
 const path = './public/ocr/all.json'
-// strip BOM if present
 const raw = readFileSync(path, 'utf8').replace(/^\uFEFF/, '')
 const data = JSON.parse(raw)
 
