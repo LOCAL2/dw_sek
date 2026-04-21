@@ -58,8 +58,16 @@ export function useChat() {
       const reply = res.choices[0].message.content ?? ''
       setMessages([...newMessages, { role: 'assistant', content: reply }])
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'เกิดข้อผิดพลาด'
-      setMessages([...newMessages, { role: 'assistant', content: `❌ ${msg}` }])
+      const msg = e instanceof Error ? e.message : ''
+      let display = 'เกิดข้อผิดพลาด กรุณาติดต่อผู้พัฒนา'
+      if (msg.includes('rate_limit') || msg.includes('429')) {
+        display = 'ขณะนี้ระบบมีการใช้งานเกินขีดจำกัด กรุณารอสักครู่แล้วลองใหม่'
+      } else if (msg.includes('401') || msg.includes('invalid_api_key')) {
+        display = 'เกิดปัญหาด้านการยืนยันตัวตน กรุณาติดต่อผู้พัฒนา'
+      } else if (msg.includes('network') || msg.includes('fetch')) {
+        display = 'ไม่สามารถเชื่อมต่อได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'
+      }
+      setMessages([...newMessages, { role: 'assistant', content: display }])
     } finally {
       setLoading(false)
     }
