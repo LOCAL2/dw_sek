@@ -6,7 +6,7 @@ import { useImageSummary } from './useImageSummary'
 // ── Cases ──────────────────────────────────────────────
 const caseMeta = [
   { id: 'case-01', title: 'DW Sek', description: 'หลักฐานการสนทนาเกี่ยวกับการเสกของในเกม', count: 28 },
-  { id: 'case-02', title: 'คดีส่วนตัว บ', description: 'หลักฐานการสนทนาส่วนตัว', count: 8 },
+  { id: 'case-02', title: 'คดีส่วนตัว พรี่ บ', description: 'หลักฐานการสนทนาส่วนตัว', count: 8 },
 ]
 
 function getCaseImages(caseId: string) {
@@ -144,8 +144,7 @@ function CaseSelector({ onSelect, onBack }: { onSelect: (id: string) => void; on
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
-        <h1>Dw Sek</h1>
-        <p>เลือกคดี</p>
+        <h1>วีรกรรม</h1>
       </header>
       <div className="case-grid">
         {caseMeta.map((c) => (
