@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useChat } from './useChat'
 
-export default function ChatPanel() {
-  const { messages, loading, send, clear } = useChat()
+export default function ChatPanel({ caseId, onOpenSelector }: { caseId: string; onOpenSelector: () => void }) {
+  const { messages, loading, send, clear } = useChat(caseId)
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -20,6 +20,13 @@ export default function ChatPanel() {
 
   return (
     <>
+      {/* Case switcher */}
+      <button className="case-switch-btn" onClick={onOpenSelector} aria-label="Switch case">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </button>
+
       {/* Toggle button */}
       <button className="chat-toggle" onClick={() => setOpen(o => !o)} aria-label="Toggle chat">
         {open ? '✕' : (

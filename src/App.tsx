@@ -3,20 +3,35 @@ import './App.css'
 import ChatPanel from './ChatPanel'
 import { useImageSummary } from './useImageSummary'
 
-const imageModules = import.meta.glob('/public/image/*.{jpg,jpeg,png,webp,gif}', { eager: true, query: '?url', import: 'default' })
-const images = Object.keys(imageModules)
-  .sort()
-  .map((path) => path.replace('/public', ''))
+// ── Cases ──────────────────────────────────────────────
+const caseMeta = [
+  { id: 'case-01', title: 'DW Sek', description: 'หลักฐานการสนทนาเกี่ยวกับการเสกของในเกม', count: 28 },
+  { id: 'case-02', title: 'คดีส่วนตัว บ', description: 'หลักฐานการสนทนาส่วนตัว', count: 8 },
+]
 
-function Lightbox({ images, index, onClose, onPrev, onNext }: {
+function getCaseImages(caseId: string) {
+  const modules = caseId === 'case-01'
+    ? import.meta.glob('/public/cases/case-01/images/*.{jpg,jpeg,png,webp}', { eager: true, query: '?url', import: 'default' })
+    : import.meta.glob('/public/cases/case-02/images/*.{jpg,jpeg,png,webp}', { eager: true, query: '?url', import: 'default' })
+  return Object.keys(modules).sort().map(p => p.replace('/public', ''))
+}
+
+const allCaseImages: Record<string, string[]> = {
+  'case-01': getCaseImages('case-01'),
+  'case-02': getCaseImages('case-02'),
+}
+
+// ── Lightbox ───────────────────────────────────────────
+function Lightbox({ images, caseId, index, onClose, onPrev, onNext }: {
   images: string[]
+  caseId: string
   index: number
   onClose: () => void
   onPrev: () => void
   onNext: () => void
 }) {
   const filename = images[index].split('/').pop() ?? null
-  const { summary, loading } = useImageSummary(filename)
+  const { summary, loading } = useImageSummary(caseId, filename)
 
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
@@ -24,7 +39,6 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
   const [dragging, setDragging] = useState(false)
   const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null)
 
-  // reset slide animation after index changes
   useEffect(() => {
     const t = setTimeout(() => setSlideDir(null), 300)
     return () => clearTimeout(t)
@@ -42,7 +56,6 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
     const dx = e.touches[0].clientX - touchStartX.current
     const dy = Math.abs(e.touches[0].clientY - touchStartY.current)
     if (dy > 40) { setDragging(false); setDragX(0); return }
-    // resistance: feels heavier the further you drag
     const resistance = 1 - Math.min(Math.abs(dx) / 600, 0.4)
     setDragX(dx * resistance)
   }
@@ -56,7 +69,6 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
       if (dx < 0) { setSlideDir('left'); onNext() }
       else { setSlideDir('right'); onPrev() }
     }
-    // smooth snap back
     setDragX(0)
   }
 
@@ -66,7 +78,6 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-
       <button className="lightbox-close" onClick={(e) => { e.stopPropagation(); onClose() }} aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -123,19 +134,42 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: {
   )
 }
 
-function App() {
+// ── Case Selector ──────────────────────────────────────
+function CaseSelector({ onSelect, onBack }: { onSelect: (id: string) => void; onBack: () => void }) {
+  return (
+    <div className="case-selector">
+      <header className="gallery-header">
+        <button className="back-btn" onClick={onBack} aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <h1>Dw Sek</h1>
+        <p>เลือกคดี</p>
+      </header>
+      <div className="case-grid">
+        {caseMeta.map((c) => (
+          <button key={c.id} className="case-card" onClick={() => onSelect(c.id)}>
+            <div className="case-card-id">{c.id}</div>
+            <div className="case-card-title">{c.title}</div>
+            <div className="case-card-desc">{c.description}</div>
+            <div className="case-card-count">{c.count} หลักฐาน</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Gallery ────────────────────────────────────────────
+function Gallery({ caseId, onOpenSelector }: { caseId: string; onOpenSelector: () => void }) {
+  const images = allCaseImages[caseId] ?? []
+  const meta = caseMeta.find(c => c.id === caseId)!
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
-  const openLightbox = (index: number) => setLightboxIndex(index)
   const closeLightbox = () => setLightboxIndex(null)
-
-  const prev = useCallback(() => {
-    setLightboxIndex((i) => (i !== null ? (i - 1 + images.length) % images.length : null))
-  }, [])
-
-  const next = useCallback(() => {
-    setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : null))
-  }, [])
+  const prev = useCallback(() => setLightboxIndex(i => i !== null ? (i - 1 + images.length) % images.length : null), [images.length])
+  const next = useCallback(() => setLightboxIndex(i => i !== null ? (i + 1) % images.length : null), [images.length])
 
   useEffect(() => {
     if (lightboxIndex === null) return
@@ -151,25 +185,20 @@ function App() {
   return (
     <div className="gallery-root">
       <header className="gallery-header">
-        <h1>Dw Sek</h1>
+        <h1>{meta.title}</h1>
         <p>{images.length} หลักฐาน</p>
       </header>
 
       <main className="gallery-grid">
         {images.map((src, i) => (
-          <button
-            key={src}
-            className="gallery-item"
-            onClick={() => openLightbox(i)}
-            aria-label={`View photo ${i + 1}`}
-          >
+          <button key={src} className="gallery-item" onClick={() => setLightboxIndex(i)} aria-label={`View photo ${i + 1}`}>
             <img src={src} alt={`Photo ${i + 1}`} loading="lazy" />
             <div className="gallery-overlay">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                <line x1="11" y1="8" x2="11" y2="14" />
-                <line x1="8" y1="11" x2="14" y2="11" />
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="11" y1="8" x2="11" y2="14"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
               </svg>
             </div>
           </button>
@@ -177,18 +206,19 @@ function App() {
       </main>
 
       {lightboxIndex !== null && (
-        <Lightbox
-          images={images}
-          index={lightboxIndex}
-          onClose={closeLightbox}
-          onPrev={prev}
-          onNext={next}
-        />
+        <Lightbox images={images} caseId={caseId} index={lightboxIndex} onClose={closeLightbox} onPrev={prev} onNext={next} />
       )}
 
-      <ChatPanel />
+      <ChatPanel caseId={caseId} onOpenSelector={onOpenSelector} />
     </div>
   )
 }
 
-export default App
+// ── App ────────────────────────────────────────────────
+export default function App() {
+  const [selectedCase, setSelectedCase] = useState<string>('case-01')
+  const [showSelector, setShowSelector] = useState(false)
+
+  if (showSelector) return <CaseSelector onSelect={(id) => { setSelectedCase(id); setShowSelector(false) }} onBack={() => setShowSelector(false)} />
+  return <Gallery caseId={selectedCase} onOpenSelector={() => setShowSelector(true)} />
+}
