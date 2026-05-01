@@ -639,6 +639,24 @@ body {
   opacity: 0.85;
 }
 
+.chat-closed-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(100, 116, 139, 0.08);
+  border-bottom: 1px solid rgba(100, 116, 139, 0.15);
+  color: #64748b;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.chat-closed-banner svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;
